@@ -6,8 +6,8 @@ from model import ResNet50Module
 from dataset import ImageNetDataModule
 
 # Kaggle-specific paths
-KAGGLE_INPUT_DIR = "/kaggle/input/imagenetmini-1000/imagenet-mini"  # Adjust if your dataset path is different
-KAGGLE_OUTPUT_DIR = "/kaggle/working/"
+KAGGLE_INPUT_DIR = "/kaggle/input/imagenet-1k"  # Adjust if your dataset path is different
+KAGGLE_OUTPUT_DIR = "/kaggle/working/resnet50-output"
 
 # Create output directory
 os.makedirs(KAGGLE_OUTPUT_DIR, exist_ok=True)
