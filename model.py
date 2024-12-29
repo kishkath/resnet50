@@ -31,10 +31,16 @@ class ResNet50Module(pl.LightningModule):
         logits = self(x)
         loss = self.criterion(logits, y)
         
-        # Log metrics
+        # Calculate accuracy
         acc = (logits.argmax(dim=1) == y).float().mean()
-        self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
-        self.log('train_acc', acc, on_step=True, on_epoch=True, prog_bar=True)
+        
+        # Log metrics to progress bar
+        self.log('train_loss', loss, prog_bar=True)
+        self.log('train_acc', acc, prog_bar=True)
+        
+        # Print metrics every 100 batches
+        if batch_idx % 100 == 0:
+            self.print(f'Epoch {self.current_epoch} | Batch {batch_idx} | Loss: {loss:.4f} | Acc: {acc:.4f}')
         
         return loss
     
@@ -43,12 +49,22 @@ class ResNet50Module(pl.LightningModule):
         logits = self(x)
         loss = self.criterion(logits, y)
         
-        # Log metrics
+        # Calculate accuracy
         acc = (logits.argmax(dim=1) == y).float().mean()
-        self.log('val_loss', loss, on_epoch=True, prog_bar=True)
-        self.log('val_acc', acc, on_epoch=True, prog_bar=True)
         
-        return loss
+        # Log metrics to progress bar
+        self.log('val_loss', loss, prog_bar=True)
+        self.log('val_acc', acc, prog_bar=True)
+        
+        return {'val_loss': loss, 'val_acc': acc}
+    
+    def validation_epoch_end(self, outputs):
+        # Calculate average validation metrics
+        avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
+        avg_acc = torch.stack([x['val_acc'] for x in outputs]).mean()
+        
+        # Print validation results
+        self.print(f'\nValidation Epoch {self.current_epoch} | Loss: {avg_loss:.4f} | Acc: {avg_acc:.4f}\n')
     
     def configure_optimizers(self):
         # Optimizer with weight decay
